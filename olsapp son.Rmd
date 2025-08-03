@@ -1,0 +1,171 @@
+---
+title: "TERMPROJECT"
+output:
+  html_document: default
+  pdf_document: default
+date: "2024-05-19"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r echo=TRUE, paged.print=TRUE}
+
+library(readxl)
+library(dplyr)
+library(ggplot2)
+
+
+oecd_1_ <- read_excel("C:/Users/yagiz/Downloads/oecd (1).xls")
+
+View(oecd_1_)
+
+```
+
+
+# Veriyi temizleme ve interpolasyon
+```{r, echo=FALSE}
+#define
+library(readxl)
+library(dplyr)
+library(zoo)
+
+oecd_1_ <- oecd_1_ %>%
+  mutate(
+    NEET_RATE_TOTAL = na.approx(NEET_RATE_TOTAL, na.rm = FALSE),
+    MIN2AVE = na.approx(MIN2AVE, na.rm = FALSE),
+    `R&D_EXP` = na.approx(`R&D_EXP`, na.rm = FALSE)
+  ) %>%
+  # before-after interpolation 
+  
+  mutate(
+    NEET_RATE_TOTAL = na.locf(NEET_RATE_TOTAL, na.rm = FALSE, fromLast = TRUE),
+    MIN2AVE = na.locf(MIN2AVE, na.rm = FALSE, fromLast = TRUE),
+    `R&D_EXP` = na.locf(`R&D_EXP`, na.rm = FALSE, fromLast = TRUE)
+  ) %>%
+  mutate(
+    NEET_RATE_TOTAL = na.locf(NEET_RATE_TOTAL, na.rm = FALSE),
+    MIN2AVE = na.locf(MIN2AVE, na.rm = FALSE),
+    `R&D_EXP` = na.locf(`R&D_EXP`, na.rm = FALSE)
+  )
+
+```
+^### line and reg
+
+ggplot(oecd_1_, aes(x = `R&D_EXP`, y = NEET_RATE_TOTAL)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "red")
+  
+  
+  ggplot(oecd_1_, aes(x = MIN2AVE, y = NEET_RATE_TOTAL)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "red")
+  
+model <- lm(NEET_RATE_TOTAL ~ MIN2AVE+ 'R&D_EXP`', data = oecd_1_)
+View(model)
+res <- resid(model)
+
+#produce residual vs. fitted plot
+plot(fitted(model), res)
+mean_res <- mean(res)
+
+# Scatter plot üzerinde eğimli bir doğru çizelim:
+abline(a = 0, b = mean_res, col = "red")
+#add a horizontal line at 0 
+abline(0,0)
+qqnorm(res)
+
+#add a straight diagonal line to the plot
+qqline(res)   
+  fatal_fe_lm_mod <- lm(NEET_RATE_TOTAL ~ MIN2AVE+ 'R&D_EXP`', data = oecd_1_)
+fatal_fe_lm_mod
+
+ install.packages("plm")
+library(plm)
+
+model <- plm( NEET_RATE_TOTAL ~ MIN2AVE+ 'R&D_EXP`',
+                    data = oecd_1_,
+                    index = c("COUNTRY", "TIME_PERİOD"), 
+                    model = "within")
+names(oecd_1_)
+             
+ model <- plm(NEET_RATE_TOTAL ~ MIN2AVE + `R&D_EXP`,
+             data = oecd_1_,
+             index = c("COUNTRY", "TIME_PERIOD"), 
+             model = "within")
+             
+             model <- plm(NEET_RATE_TOTAL ~ MIN2AVE + "R&D_EXP",
+             data = oecd_1_,
+             index = c("COUNTRY", "TIME_PERIOD"), 
+             model = "within")
+             
+             
+
+# Eğer 'R&D_EXP' sütunu gerçekten varsa, model formülünde çift tırnak içinde yazılmalıdır
+model <- plm(NEET_RATE_TOTAL ~ MIN2AVE + 'R&D_EXP',
+             data = oecd_1_,
+             index = c("COUNTRY", "TIME_PERIOD"), 
+             model = "within")
+oecd_1_ <- plm(NEET_RATE_TOTAL ~ MIN2AVE + `R&D_EXP`,
+             data = oecd_1_,
+             index = c("COUNTRY", "TIME_PERIOD"), 
+model = "within")
+
+```{r}             
+class(model)
+install.packages("stargazer")
+library(stargazer)
+library(plm)
+data(oecd_1_)
+ols_model <- lm(NEET_RATE_TOTAL ~ MIN2AVE + `R&D_EXP`, data = oecd_1_)
+
+summary(ols_model)
+tidy_ols <- tidy(ols_model)
+print(tidy_ols)
+```
+library(rmarkdown)
+render("olsapp.Rmd", output_format = "html_document", output_file = "output.html")
+## BREUSCH PAGAN
+```{r}
+install.packages("lmtest")
+library(lmtest)
+##heterosk
+bptest(model)
+bptest(NEET_RATE_TOTAL ~ MIN2AVE + `R&D_EXP`, data=oecd_1_)
+## autocorr: 
+bgtest(NEET_RATE_TOTAL ~ MIN2AVE + `R&D_EXP`, order=3, data=oecd_1_)
+
+
+library("plm")
+fixed_model <- lm(NEET_RATE_TOTAL ~ MIN2AVE + `R&D_EXP` + factor(COUNTRY), data = oecd_1_)
+coeftest(fixed_model)
+# plm paketini yükleyin
+install.packages("plm")
+library(plm)
+# Veri çerçevesini kontrol et
+head(oecd_1_)
+
+# plm modelini oluştur
+fixed_model <- plm(NEET_RATE_TOTAL ~ MIN2AVE + R_AND_EXP, data = oecd_1_, model = "within")
+
+# Sabit etki (fixed effect) modelini oluşturma
+fixed_model <- plm(NEET_RATE_TOTAL ~ MIN2AVE + `R&D_EXP`, data = oecd_1_, model = "within")
+
+# Endojenite testi (Durbin-Wu-Hausman testi)
+phtest(fixed_model, test = c("bp"))
+
+```
+
+
+install.packages("broom")
+library(broom)
+# Model oluşturma
+ols_model <- lm(NEET_RATE_TOTAL ~ MIN2AVE + `R&D_EXP`, data = oecd_1_)
+
+# ggplot ile grafik oluşturma
+ggplot(data = augment(ols_model), aes(x = .fitted, y = .resid)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "OLS Residuals vs Fitted", x = "Fitted Values", y = "Residuals")
+  
