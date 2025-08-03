@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE gretldata SYSTEM "gretldata.dtd">
+
+<gretldata version="1.5" name="agricultural products and its determinants" frequency="1" n="10" startobs="2010" endobs="2019" type="time-series">
+<description>Data imported from Excel file 'tarım ekonometri.xlsx', 2024-05-14 13:51
+</description>
+<variables count="7">
+<variable name="year"
+/>
+<variable name="export_of_agricultural_products"
+/>
+<variable name="inflation_rate_in_food_and_beve"
+/>
+<variable name="producer_price_index"
+/>
+<variable name="agricultural_producer_index"
+/>
+<variable name="Food_beverages_and_tobacco_good"
+/>
+<variable name="uhat3"
+ label="residual from model 3"
+/>
+</variables>
+<observations count="10" labels="false">
+<obs>2010 12040 6.4 8.87 73.67 103.9 -673.56732476596517 </obs>
+<obs>2011 14427 10.45 13.33 81.44 106.4 -418.03239528487393 </obs>
+<obs>2012 15251 6.16 2.45 78.04 114.5 -791.43989969431277 </obs>
+<obs>2013 16977 7.4 6.97 83.96 114.8 1490.0714383014747 </obs>
+<obs>2014 17995 8.17 6.36 89.56 119 1251.5066930916291 </obs>
+<obs>2015 16789 8.81 5.71 103.6 124.5 -825.68809076948673 </obs>
+<obs>2016 16249 8.53 9.94 105.11 122.2 600.35638946652398 </obs>
+<obs>2017 16909 11.92 15.47 122.42 133 -956.6455825690573 </obs>
+<obs>2018 17673 20.3 33.64 141.87 127 239.9731943233819 </obs>
+<obs>2019 17955 11.84 7.36 164.67 135.2 83.465577900737117 </obs>
+</observations>
+</gretldata>
